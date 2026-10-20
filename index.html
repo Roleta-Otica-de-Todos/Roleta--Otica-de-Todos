@@ -207,7 +207,7 @@ function validade(id){ return FIM_GERAL; }
 function dataTxt(d){ return d.toLocaleDateString('pt-BR', { timeZone:'America/Sao_Paulo' }); }
 
 let rot = 0, spinning = false, used = 0;
-let disc = 0, giftMask = 0, won = [];
+let disc = 0, giftMask = 0, won = [], discWon = new Set();
 const $ = id => document.getElementById(id);
 
 // ── LISTA DE PRÊMIOS NA INTRO ───────────────────────────
@@ -251,7 +251,7 @@ document.fonts && document.fonts.ready.then(()=>draw(rot));
 // ── SORTEIO (chance real, com as regras de limite) ──────
 function eligible(i){
   const s = SEGS[i];
-  if (s.type==='disc') return disc + s.pct <= MAX_DISC; // só sorteia desconto que cabe no limite
+  if (s.type==='disc') return disc + s.pct <= MAX_DISC && !discWon.has(s.pct); // sem repetir o mesmo %
   return !(giftMask & s.bit);
 }
 function pick(){
@@ -290,7 +290,7 @@ function land(i){
   const s = SEGS[i];
   let msg;
   if (s.type==='disc'){
-    disc += s.pct; msg = `🎉 Você ganhou ${s.emoji} ${s.name}!`;
+    disc += s.pct; discWon.add(s.pct); msg = `🎉 Você ganhou ${s.emoji} ${s.name}!`;
     $('total').hidden = false; $('total-val').textContent = disc + '%';
   } else {
     giftMask |= s.bit; msg = `🎉 Você ganhou ${s.emoji} ${s.name}!`;
